@@ -77,9 +77,30 @@ GO
 -- =============================================
 PRINT 'Inserting Employees...';
 
+-- =============================================
+-- IMPORTANT: PASSWORD HASH CONFIGURATION
+-- =============================================
+-- The hash below is a PLACEHOLDER and WILL NOT WORK!
+-- You MUST generate a valid BCrypt hash for "Password123!"
+--
+-- TO FIX:
+-- 1. Run: cd Tools/GeneratePasswordHash && dotnet run "Password123!"
+-- 2. Copy the generated hash (starts with $2a$ or $2b$)
+-- 3. Replace the @PasswordHash value below
+-- 4. Re-run this script
+--
+-- OR use: Database/Scripts/10_Fix_Password_Hash.sql
+--
+-- For detailed instructions, see: PASSWORD_FIX_INSTRUCTIONS.md
+-- =============================================
+
 -- Password: Password123! (hashed with BCrypt)
--- In production, use proper BCrypt hashing
+-- TODO: Replace with actual BCrypt hash from generator tool
 DECLARE @PasswordHash NVARCHAR(500) = 'AQAAAAIAAYagAAAAEKxqVqxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx';
+
+-- ⚠️  WARNING: This placeholder hash will NOT work for authentication!
+-- ⚠️  You must generate a real BCrypt hash using the tools provided.
+-- ⚠️  See PASSWORD_FIX_INSTRUCTIONS.md for step-by-step guide.
 
 -- System Admin (HR Department)
 INSERT INTO dbo.Employees (
