@@ -37,13 +37,21 @@ namespace LeaveManagementSystem.Controllers
         {
             year ??= DateTime.Now.Year;
 
-            var report = await _reportService.GetAllEmployeesLeaveReportAsync(year, departmentId);
+            var report = await _reportService.GetAllEmployeesLeaveReportPivotAsync(year, departmentId);
             var departments = await _departmentService.GetAllDepartmentsAsync();
+
+            // Get all unique leave type codes for table headers
+            var leaveTypeCodes = report
+                .SelectMany(r => r.LeaveBalances.Keys)
+                .Distinct()
+                .OrderBy(k => k)
+                .ToList();
 
             ViewBag.Year = year;
             ViewBag.DepartmentId = departmentId;
             ViewBag.Years = Enumerable.Range(DateTime.Now.Year - 5, 6).Reverse();
             ViewBag.Departments = departments;
+            ViewBag.LeaveTypeCodes = leaveTypeCodes;
 
             return View(report);
         }

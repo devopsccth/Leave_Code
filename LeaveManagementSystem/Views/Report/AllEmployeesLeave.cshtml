@@ -1,11 +1,12 @@
-@model IEnumerable<LeaveBalance>
+@model IEnumerable<EmployeeLeaveBalancePivotViewModel>
 @{
     ViewData["Title"] = "รายงานวันลาทั้งหมด";
+    var leaveTypeCodes = ViewBag.LeaveTypeCodes as List<string> ?? new List<string>();
 }
 
 <div class="card">
     <div class="card-header bg-success text-white">
-        <h4><i class="bi bi-file-earmark-bar-graph"></i> รายงานวันลาพนักงานทั้งหมด</h4>
+        <h4><i class="bi bi-file-earmark-bar-graph"></i> รายงานวันลาพนักงานทั้งหมด (แบบ Pivot)</h4>
     </div>
     <div class="card-body">
         <form method="get" class="row g-3 mb-4">
@@ -40,39 +41,81 @@
         @if (Model != null && Model.Any())
         {
             <div class="table-responsive">
-                <table id="allEmployeesLeaveTable" class="table table-hover table-sm">
-                    <thead>
+                <table id="allEmployeesLeaveTable" class="table table-hover table-sm table-bordered">
+                    <thead class="table-light">
                         <tr>
-                            <th>รหัส</th>
-                            <th>ชื่อ-สกุล</th>
-                            <th>แผนก</th>
-                            <th>ตำแหน่ง</th>
-                            <th>ประเภทการลา</th>
-                            <th class="text-center">สิทธิ์</th>
-                            <th class="text-center">ใช้</th>
-                            <th class="text-center">เหลือ</th>
+                            <th rowspan="2" class="align-middle text-center">รหัส</th>
+                            <th rowspan="2" class="align-middle">ชื่อ-สกุล</th>
+                            <th rowspan="2" class="align-middle">แผนก</th>
+                            <th rowspan="2" class="align-middle">ตำแหน่ง</th>
+                            @foreach (var leaveTypeCode in leaveTypeCodes)
+                            {
+                                <th colspan="3" class="text-center bg-info bg-opacity-10">
+                                    @{
+                                        var sampleBalance = Model
+                                            .SelectMany(m => m.LeaveBalances)
+                                            .FirstOrDefault(lb => lb.Key == leaveTypeCode);
+                                        var leaveTypeName = sampleBalance.Value?.LeaveTypeName ?? leaveTypeCode;
+                                    }
+                                    @leaveTypeName
+                                </th>
+                            }
+                        </tr>
+                        <tr>
+                            @foreach (var leaveTypeCode in leaveTypeCodes)
+                            {
+                                <th class="text-center" style="font-size: 0.85rem;">สิทธิ์</th>
+                                <th class="text-center" style="font-size: 0.85rem;">ใช้</th>
+                                <th class="text-center" style="font-size: 0.85rem;">เหลือ</th>
+                            }
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model)
+                        @foreach (var employee in Model)
                         {
                             <tr>
-                                <td><small>@item.EmployeeCode</small></td>
-                                <td>@item.EmployeeName</td>
-                                <td>@item.DepartmentName</td>
-                                <td>@item.PositionName</td>
-                                <td><span class="badge bg-secondary">@item.LeaveTypeName</span></td>
-                                <td class="text-center">@item.EntitledDays</td>
-                                <td class="text-center">@item.UsedDays</td>
-                                <td class="text-center">
-                                    <strong class="@(item.RemainingDays < 1 ? "text-danger" : "")">
-                                        @item.RemainingDays
-                                    </strong>
-                                </td>
+                                <td><small>@employee.EmployeeCode</small></td>
+                                <td>@employee.EmployeeName</td>
+                                <td>@employee.DepartmentName</td>
+                                <td>@employee.PositionName</td>
+                                @foreach (var leaveTypeCode in leaveTypeCodes)
+                                {
+                                    if (employee.LeaveBalances.ContainsKey(leaveTypeCode))
+                                    {
+                                        var balance = employee.LeaveBalances[leaveTypeCode];
+                                        var usagePercent = balance.UsagePercentage;
+                                        <td class="text-center">@balance.EntitledDays</td>
+                                        <td class="text-center">
+                                            <span class="@(balance.UsedDays > 0 ? "text-warning fw-bold" : "")">
+                                                @balance.UsedDays
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            <span class="@(balance.RemainingDays < 1 ? "text-danger fw-bold" : balance.RemainingDays < balance.EntitledDays * 0.3m ? "text-warning fw-bold" : "text-success")">
+                                                @balance.RemainingDays
+                                            </span>
+                                        </td>
+                                    }
+                                    else
+                                    {
+                                        <td class="text-center text-muted">-</td>
+                                        <td class="text-center text-muted">-</td>
+                                        <td class="text-center text-muted">-</td>
+                                    }
+                                }
                             </tr>
                         }
                     </tbody>
                 </table>
+            </div>
+
+            <div class="alert alert-light mt-3">
+                <h6><i class="bi bi-info-circle-fill text-info"></i> คำอธิบาย</h6>
+                <ul class="mb-0 small">
+                    <li><strong>สิทธิ์</strong> = จำนวนวันลาที่มีสิทธิ์ทั้งหมด</li>
+                    <li><strong>ใช้</strong> = จำนวนวันที่ใช้ไปแล้ว (สีเหลือง = มีการใช้)</li>
+                    <li><strong>เหลือ</strong> = จำนวนวันที่เหลือ (สีแดง = ใช้หมด, สีเหลือง = เหลือน้อย, สีเขียว = เหลือเยอะ)</li>
+                </ul>
             </div>
         }
         else
@@ -94,7 +137,11 @@
                     url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/th.json'
                 },
                 order: [[0, 'asc']],
-                pageLength: 50
+                pageLength: 50,
+                scrollX: true,
+                fixedColumns: {
+                    left: 4
+                }
             });
         });
     </script>
