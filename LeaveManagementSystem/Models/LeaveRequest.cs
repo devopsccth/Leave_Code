@@ -26,10 +26,18 @@ namespace LeaveManagementSystem.Models
         public string? PositionName { get; set; }
         public string? LeaveTypeName { get; set; }
 
+        // Manager info (for email notifications)
+        public int? ManagerId { get; set; }
+        public string? ManagerEmail { get; set; }
+
+        // HR emails (JSON array from stored procedure)
+        public string? HREmails { get; set; }
+
         // Approval info
         public int ApprovedCount { get; set; }
         public int TotalApprovers { get; set; }
         public int? DaysPending { get; set; }
+        public bool? AllApproved { get; set; }
 
         // Approvers
         public int? Approver1Id { get; set; }

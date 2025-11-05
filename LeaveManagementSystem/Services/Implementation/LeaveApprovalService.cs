@@ -21,11 +21,30 @@ namespace LeaveManagementSystem.Services.Implementation
             var result = await _leaveApprovalRepository.ApproveLeaveRequestAsync(leaveRequestId, approverId, comments);
 
             // Send email if all approvers have approved
-            if (result.Status == "Approved" && !string.IsNullOrEmpty(result.EmployeeEmail))
+            if (result.AllApproved == true && result.Status == "Approved" && !string.IsNullOrEmpty(result.EmployeeEmail))
             {
                 var hrEmails = new List<string>();
+
                 // Parse HR emails from JSON if provided
-                // This would normally come from the stored procedure result
+                if (!string.IsNullOrEmpty(result.HREmails))
+                {
+                    try
+                    {
+                        var hrEmailObjects = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(result.HREmails);
+                        if (hrEmailObjects != null)
+                        {
+                            hrEmails = hrEmailObjects
+                                .Where(obj => obj.ContainsKey("Email"))
+                                .Select(obj => obj["Email"])
+                                .ToList();
+                        }
+                    }
+                    catch (JsonException)
+                    {
+                        // If JSON parsing fails, continue without HR emails
+                        hrEmails = new List<string>();
+                    }
+                }
 
                 await _emailService.SendLeaveApprovedNotificationAsync(
                     result,
