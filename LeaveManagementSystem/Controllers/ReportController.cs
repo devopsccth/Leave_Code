@@ -48,7 +48,7 @@ namespace LeaveManagementSystem.Controllers
                 if (report != null && report.Any())
                 {
                     leaveTypeCodes = report
-                        .SelectMany(r => r.LeaveBalances?.Keys ?? new List<string>())
+                        .SelectMany(r => r.LeaveBalances?.Keys ?? Enumerable.Empty<string>())
                         .Where(k => !string.IsNullOrEmpty(k))
                         .Distinct()
                         .OrderBy(k => k)
