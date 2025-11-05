@@ -1,0 +1,159 @@
+@{
+    ViewData["Title"] = "หน้าหลัก";
+}
+
+<div class="row">
+    <div class="col-12">
+        <h2>
+            <i class="bi bi-house"></i> สวัสดี, @ViewBag.EmployeeName
+        </h2>
+        <p class="text-muted">ยินดีต้อนรับสู่ระบบบริหารจัดการการลา</p>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    @if (ViewBag.LeaveBalances != null)
+    {
+        @foreach (var balance in ViewBag.LeaveBalances as IEnumerable<LeaveBalance>)
+        {
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body">
+                        <h6 class="card-subtitle mb-2 text-muted">@balance.LeaveTypeName</h6>
+                        <h3 class="card-title">@balance.RemainingDays วัน</h3>
+                        <p class="card-text small">
+                            <span class="text-muted">ใช้ไป: @balance.UsedDays วัน</span><br>
+                            <span class="text-muted">ทั้งหมด: @balance.EntitledDays วัน</span>
+                        </p>
+                        <div class="progress" style="height: 5px;">
+                            <div class="progress-bar" role="progressbar"
+                                 style="width: @((balance.RemainingDays / balance.EntitledDays * 100).ToString("F0"))%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5><i class="bi bi-file-earmark-text"></i> คำขอลาล่าสุดของฉัน</h5>
+            </div>
+            <div class="card-body">
+                @if (ViewBag.RecentRequests != null && ((IEnumerable<LeaveRequest>)ViewBag.RecentRequests).Any())
+                {
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>เลขที่</th>
+                                    <th>ประเภท</th>
+                                    <th>วันที่</th>
+                                    <th>สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var request in ViewBag.RecentRequests as IEnumerable<LeaveRequest>)
+                                {
+                                    <tr>
+                                        <td>@request.RequestNumber</td>
+                                        <td>@request.LeaveTypeName</td>
+                                        <td>@request.StartDate.ToString("dd/MM/yyyy")</td>
+                                        <td>
+                                            @if (request.Status == "Approved")
+                                            {
+                                                <span class="badge bg-success">อนุมัติ</span>
+                                            }
+                                            else if (request.Status == "Rejected")
+                                            {
+                                                <span class="badge bg-danger">ปฏิเสธ</span>
+                                            }
+                                            else if (request.Status == "Cancelled")
+                                            {
+                                                <span class="badge bg-secondary">ยกเลิก</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-warning text-dark">รอพิจารณา</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                    <a asp-controller="LeaveRequest" asp-action="Index" class="btn btn-sm btn-primary">ดูทั้งหมด</a>
+                }
+                else
+                {
+                    <p class="text-muted">ไม่มีคำขอลา</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (User.IsInRole("Manager") || User.IsInRole("HR") || User.IsInRole("Admin"))
+    {
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-warning">
+                    <h5><i class="bi bi-check-circle"></i> รอการอนุมัติ</h5>
+                </div>
+                <div class="card-body">
+                    @if (ViewBag.PendingApprovals != null && ((IEnumerable<LeaveRequest>)ViewBag.PendingApprovals).Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>พนักงาน</th>
+                                        <th>ประเภท</th>
+                                        <th>วันที่</th>
+                                        <th>จำนวนวัน</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var request in ViewBag.PendingApprovals as IEnumerable<LeaveRequest>)
+                                    {
+                                        <tr>
+                                            <td>@request.EmployeeName</td>
+                                            <td>@request.LeaveTypeName</td>
+                                            <td>@request.StartDate.ToString("dd/MM/yyyy")</td>
+                                            <td>@request.TotalDays วัน</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <a asp-controller="LeaveApproval" asp-action="Index" class="btn btn-sm btn-warning">ดูทั้งหมด</a>
+                    }
+                    else
+                    {
+                        <p class="text-muted">ไม่มีคำขอรอพิจารณา</p>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5>เริ่มต้นใช้งาน</h5>
+                <div class="btn-group mt-3" role="group">
+                    <a asp-controller="LeaveRequest" asp-action="Create" class="btn btn-primary">
+                        <i class="bi bi-plus-circle"></i> ขอลา
+                    </a>
+                    <a asp-controller="LeaveRequest" asp-action="MyBalance" class="btn btn-outline-primary">
+                        <i class="bi bi-wallet2"></i> ดูวันลาคงเหลือ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

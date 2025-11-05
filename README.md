@@ -2,6 +2,28 @@
 
 ระบบบริหารจัดการการลาภายในองค์กร พัฒนาด้วย .NET 8 MVC, SQL Server, และ Dapper ORM
 
+[![.NET](https://img.shields.io/badge/.NET-8.0-512BD4?logo=dotnet)](https://dotnet.microsoft.com/)
+[![SQL Server](https://img.shields.io/badge/SQL%20Server-2022-CC2927?logo=microsoft-sql-server)](https://www.microsoft.com/sql-server)
+[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker)](https://www.docker.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+
+## 🚀 Quick Start
+
+```bash
+# Clone and deploy with one command
+git clone <repository-url>
+cd Leave_Code
+./deploy.sh
+```
+
+เข้าใช้งานที่: **http://localhost:5000**
+
+**Default Login:** `admin@company.com` / `Password123!`
+
+📖 [Read Quick Start Guide](QUICKSTART.md) | 🚀 [Deployment Guide](DEPLOYMENT.md)
+
+---
+
 ## ⭐ คุณสมบัติหลัก
 
 ### 1. การจัดการประเภทการลา
