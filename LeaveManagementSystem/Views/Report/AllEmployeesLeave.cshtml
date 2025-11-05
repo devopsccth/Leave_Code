@@ -39,6 +39,7 @@
     .table-wrapper {
         max-height: calc(100vh - 350px);
         overflow-y: auto;
+        overflow-x: hidden;
         border: 1px solid #dee2e6;
         border-radius: 8px;
     }
@@ -46,6 +47,15 @@
     #allEmployeesLeaveTable {
         margin-bottom: 0 !important;
         font-size: 0.875rem;
+        table-layout: auto;
+        width: 100%;
+    }
+
+    #allEmployeesLeaveTable th,
+    #allEmployeesLeaveTable td {
+        max-width: 150px;
+        overflow-wrap: break-word;
+        word-break: break-word;
     }
 
     #allEmployeesLeaveTable thead th {
@@ -55,8 +65,9 @@
         background: white !important;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         font-weight: 600;
-        white-space: nowrap;
-        padding: 0.75rem 0.5rem;
+        padding: 0.5rem 0.25rem;
+        font-size: 0.8rem;
+        word-wrap: break-word;
     }
 
     #allEmployeesLeaveTable thead tr:first-child th {
@@ -73,20 +84,14 @@
     }
 
     #allEmployeesLeaveTable tbody td {
-        padding: 0.5rem 0.5rem;
+        padding: 0.4rem 0.25rem;
         vertical-align: middle;
-        white-space: nowrap;
+        font-size: 0.8rem;
+        word-wrap: break-word;
     }
 
     #allEmployeesLeaveTable tbody tr:hover {
         background-color: #f8f9fa;
-    }
-
-    .fixed-columns {
-        position: sticky;
-        left: 0;
-        background: white;
-        z-index: 5;
     }
 
     .summary-stats {
@@ -190,13 +195,13 @@
             </div>
 
             <div class="table-wrapper">
-                <table id="allEmployeesLeaveTable" class="table table-hover table-sm table-bordered mb-0">
+                <table id="allEmployeesLeaveTable" class="table table-hover table-sm table-bordered mb-0" style="table-layout: auto; width: 100%;">
                     <thead>
                         <tr>
-                            <th rowspan="2" class="align-middle text-center" style="min-width: 80px;">รหัส</th>
-                            <th rowspan="2" class="align-middle" style="min-width: 150px;">ชื่อ-สกุล</th>
-                            <th rowspan="2" class="align-middle" style="min-width: 100px;">แผนก</th>
-                            <th rowspan="2" class="align-middle" style="min-width: 120px;">ตำแหน่ง</th>
+                            <th rowspan="2" class="align-middle text-center">รหัส</th>
+                            <th rowspan="2" class="align-middle">ชื่อ-สกุล</th>
+                            <th rowspan="2" class="align-middle">แผนก</th>
+                            <th rowspan="2" class="align-middle">ตำแหน่ง</th>
                             @foreach (var leaveTypeCode in leaveTypeCodes)
                             {
                                 <th colspan="3" class="text-center">
@@ -213,9 +218,9 @@
                         <tr>
                             @foreach (var leaveTypeCode in leaveTypeCodes)
                             {
-                                <th class="text-center" style="min-width: 50px;">สิทธิ์</th>
-                                <th class="text-center" style="min-width: 50px;">ใช้</th>
-                                <th class="text-center" style="min-width: 50px;">เหลือ</th>
+                                <th class="text-center">สิทธิ์</th>
+                                <th class="text-center">ใช้</th>
+                                <th class="text-center">เหลือ</th>
                             }
                         </tr>
                     </thead>
@@ -309,14 +314,10 @@
                     order: [[0, 'asc']],
                     pageLength: 25,
                     lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "ทั้งหมด"]],
-                    scrollX: true,
-                    scrollCollapse: true,
-                    fixedColumns: {
-                        left: 4
-                    },
+                    responsive: true,
+                    autoWidth: false,
                     dom: '<"row"<"col-sm-12 col-md-6"l><"col-sm-12 col-md-6"f>>rt<"row"<"col-sm-12 col-md-5"i><"col-sm-12 col-md-7"p>>',
                     initComplete: function() {
-                        // Add export buttons functionality if needed
                         console.log('DataTable initialized with ' + this.api().rows().count() + ' rows');
                     }
                 });
