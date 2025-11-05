@@ -40,7 +40,7 @@
         @if (Model != null && Model.Any())
         {
             <div class="table-responsive">
-                <table class="table table-hover table-sm">
+                <table id="allEmployeesLeaveTable" class="table table-hover table-sm">
                     <thead>
                         <tr>
                             <th>รหัส</th>
@@ -85,3 +85,17 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#allEmployeesLeaveTable').DataTable({
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/th.json'
+                },
+                order: [[0, 'asc']],
+                pageLength: 50
+            });
+        });
+    </script>
+}
