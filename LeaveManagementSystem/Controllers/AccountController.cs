@@ -4,14 +4,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using LeaveManagementSystem.Models.ViewModels;
 using LeaveManagementSystem.Services.Interfaces;
+using AuthService = LeaveManagementSystem.Services.Interfaces.IAuthenticationService;
 
 namespace LeaveManagementSystem.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly IAuthenticationService _authService;
+        private readonly AuthService _authService;
 
-        public AccountController(IAuthenticationService authService)
+        public AccountController(AuthService authService)
         {
             _authService = authService;
         }

@@ -26,8 +26,13 @@
                             <span class="text-muted">ทั้งหมด: @balance.EntitledDays วัน</span>
                         </p>
                         <div class="progress" style="height: 5px;">
+                            @{
+                                var percentage = balance.EntitledDays > 0
+                                    ? (balance.RemainingDays / balance.EntitledDays * 100)
+                                    : 0;
+                            }
                             <div class="progress-bar" role="progressbar"
-                                 style="width: @((balance.RemainingDays / balance.EntitledDays * 100).ToString("F0"))%"></div>
+                                 style="width: @percentage.ToString("F0")%"></div>
                         </div>
                     </div>
                 </div>
