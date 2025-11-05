@@ -18,5 +18,11 @@ namespace LeaveManagementSystem.Models
         // Navigation properties
         public string? LeaveTypeCode { get; set; }
         public string? LeaveTypeName { get; set; }
+
+        // Employee navigation properties (populated from joins)
+        public string? EmployeeCode { get; set; }
+        public string? EmployeeName { get; set; }
+        public string? DepartmentName { get; set; }
+        public string? PositionName { get; set; }
     }
 }
