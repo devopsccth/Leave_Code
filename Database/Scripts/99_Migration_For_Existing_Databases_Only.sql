@@ -1,7 +1,36 @@
--- Migration Script: Add Department Relationship to Position
--- This script updates the Position table to include DepartmentId
+-- =============================================
+-- MIGRATION SCRIPT - FOR EXISTING DATABASES ONLY
+-- =============================================
+--
+-- WARNING: This script is ONLY for existing databases
+-- that were created with version 1.0 schema.
+--
+-- DO NOT USE THIS SCRIPT FOR FRESH INSTALLATIONS!
+-- For new installations, use 00_MasterDeploy.sql instead.
+--
+-- This script will:
+-- 1. Add DepartmentId column to Positions table
+-- 2. Migrate existing position data
+-- 3. Create foreign key relationship
+-- 4. Add performance indexes
+--
+-- Prerequisites:
+-- - Existing database with v1.0 schema
+-- - Backup your database before running this script
+--
+-- =============================================
 
 USE LeaveManagementDB;
+GO
+
+PRINT '=============================================';
+PRINT 'MIGRATION SCRIPT - EXISTING DATABASE';
+PRINT 'Started at: ' + CONVERT(NVARCHAR(30), GETDATE(), 120);
+PRINT '=============================================';
+PRINT '';
+PRINT 'WARNING: This will modify your existing database structure.';
+PRINT 'Make sure you have a backup before proceeding!';
+PRINT '';
 GO
 
 -- Add DepartmentId column to Positions table if not exists
@@ -68,5 +97,15 @@ UPDATE dbo.Positions
 SET DepartmentId = (SELECT TOP 1 DepartmentId FROM dbo.Departments WHERE IsActive = 1)
 WHERE PositionCode = 'MGR' AND DepartmentId IS NULL;
 
-PRINT 'Position-Department relationship migration completed successfully';
+PRINT '';
+PRINT '=============================================';
+PRINT 'MIGRATION COMPLETED SUCCESSFULLY';
+PRINT 'Completed at: ' + CONVERT(NVARCHAR(30), GETDATE(), 120);
+PRINT '=============================================';
+PRINT '';
+PRINT 'Next Steps:';
+PRINT '1. Verify all positions have correct DepartmentId';
+PRINT '2. Update stored procedures if needed';
+PRINT '3. Test the application thoroughly';
+PRINT '=============================================';
 GO

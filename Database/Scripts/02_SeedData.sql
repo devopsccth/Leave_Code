@@ -1,4 +1,18 @@
--- Seed Data for Leave Management System
+-- =============================================
+-- DEPRECATED - DO NOT USE THIS FILE
+-- =============================================
+--
+-- This file is from version 1.0 and is no longer compatible
+-- with the current database schema.
+--
+-- USE INSTEAD: 02_SeedData_Updated.sql
+--
+-- Reason: This file inserts Positions without DepartmentId,
+-- which will fail with the new schema that requires DepartmentId.
+--
+-- =============================================
+
+-- Seed Data for Leave Management System (DEPRECATED - v1.0)
 
 -- Insert Departments
 INSERT INTO dbo.Departments (DepartmentCode, DepartmentName) VALUES

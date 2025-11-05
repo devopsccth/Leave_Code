@@ -1,19 +1,11 @@
 -- =============================================
--- DEPRECATED - DO NOT USE THIS FILE
--- =============================================
---
--- This file is from version 1.0 and is no longer compatible
--- with the current requirements.
---
--- USE INSTEAD: 01_CreateSchema.sql
---
--- Reason: This file creates Positions table without DepartmentId,
--- which is now required for the Department-Position relationship.
---
+-- Leave Management System Database Schema
+-- Created for .NET 8 MVC Application
+-- Version: 2.0 - Consolidated with Department-Position Relationship
 -- =============================================
 
--- Leave Management System Database Schema (DEPRECATED - v1.0)
--- Created for .NET 8 MVC Application
+USE master;
+GO
 
 -- Drop existing tables if they exist (for development)
 IF OBJECT_ID('dbo.LeaveApprovalHistory', 'U') IS NOT NULL DROP TABLE dbo.LeaveApprovalHistory;
@@ -24,8 +16,11 @@ IF OBJECT_ID('dbo.LeaveTypes', 'U') IS NOT NULL DROP TABLE dbo.LeaveTypes;
 IF OBJECT_ID('dbo.Employees', 'U') IS NOT NULL DROP TABLE dbo.Employees;
 IF OBJECT_ID('dbo.Positions', 'U') IS NOT NULL DROP TABLE dbo.Positions;
 IF OBJECT_ID('dbo.Departments', 'U') IS NOT NULL DROP TABLE dbo.Departments;
+GO
 
--- Departments Table
+-- =============================================
+-- DEPARTMENTS TABLE
+-- =============================================
 CREATE TABLE dbo.Departments (
     DepartmentId INT PRIMARY KEY IDENTITY(1,1),
     DepartmentCode NVARCHAR(50) NOT NULL UNIQUE,
@@ -34,18 +29,26 @@ CREATE TABLE dbo.Departments (
     CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
     UpdatedDate DATETIME NULL
 );
+GO
 
--- Positions Table
+-- =============================================
+-- POSITIONS TABLE (with Department relationship)
+-- =============================================
 CREATE TABLE dbo.Positions (
     PositionId INT PRIMARY KEY IDENTITY(1,1),
     PositionCode NVARCHAR(50) NOT NULL UNIQUE,
     PositionName NVARCHAR(200) NOT NULL,
+    DepartmentId INT NOT NULL, -- Each position belongs to a department
     IsActive BIT NOT NULL DEFAULT 1,
     CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
-    UpdatedDate DATETIME NULL
+    UpdatedDate DATETIME NULL,
+    CONSTRAINT FK_Positions_Department FOREIGN KEY (DepartmentId) REFERENCES dbo.Departments(DepartmentId)
 );
+GO
 
--- Employees Table (includes authentication)
+-- =============================================
+-- EMPLOYEES TABLE (includes authentication)
+-- =============================================
 CREATE TABLE dbo.Employees (
     EmployeeId INT PRIMARY KEY IDENTITY(1,1),
     EmployeeCode NVARCHAR(50) NOT NULL UNIQUE,
@@ -68,8 +71,11 @@ CREATE TABLE dbo.Employees (
     CONSTRAINT FK_Employees_Position FOREIGN KEY (PositionId) REFERENCES dbo.Positions(PositionId),
     CONSTRAINT FK_Employees_Manager FOREIGN KEY (ManagerId) REFERENCES dbo.Employees(EmployeeId)
 );
+GO
 
--- Leave Types Table
+-- =============================================
+-- LEAVE TYPES TABLE
+-- =============================================
 CREATE TABLE dbo.LeaveTypes (
     LeaveTypeId INT PRIMARY KEY IDENTITY(1,1),
     LeaveTypeCode NVARCHAR(50) NOT NULL UNIQUE,
@@ -86,8 +92,11 @@ CREATE TABLE dbo.LeaveTypes (
     CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
     UpdatedDate DATETIME NULL
 );
+GO
 
--- Leave Balances Table
+-- =============================================
+-- LEAVE BALANCES TABLE
+-- =============================================
 CREATE TABLE dbo.LeaveBalances (
     LeaveBalanceId INT PRIMARY KEY IDENTITY(1,1),
     EmployeeId INT NOT NULL,
@@ -105,8 +114,11 @@ CREATE TABLE dbo.LeaveBalances (
     CONSTRAINT FK_LeaveBalances_LeaveType FOREIGN KEY (LeaveTypeId) REFERENCES dbo.LeaveTypes(LeaveTypeId),
     CONSTRAINT UQ_LeaveBalance_Employee_Year UNIQUE (EmployeeId, LeaveTypeId, Year)
 );
+GO
 
--- Leave Requests Table
+-- =============================================
+-- LEAVE REQUESTS TABLE
+-- =============================================
 CREATE TABLE dbo.LeaveRequests (
     LeaveRequestId INT PRIMARY KEY IDENTITY(1,1),
     RequestNumber NVARCHAR(50) NOT NULL UNIQUE, -- e.g., LR-2024-0001
@@ -126,8 +138,11 @@ CREATE TABLE dbo.LeaveRequests (
     CONSTRAINT FK_LeaveRequests_Employee FOREIGN KEY (EmployeeId) REFERENCES dbo.Employees(EmployeeId),
     CONSTRAINT FK_LeaveRequests_LeaveType FOREIGN KEY (LeaveTypeId) REFERENCES dbo.LeaveTypes(LeaveTypeId)
 );
+GO
 
--- Leave Approvers Table (1-2 approvers)
+-- =============================================
+-- LEAVE APPROVERS TABLE (1-2 approvers)
+-- =============================================
 CREATE TABLE dbo.LeaveApprovers (
     LeaveApproverId INT PRIMARY KEY IDENTITY(1,1),
     LeaveRequestId INT NOT NULL,
@@ -142,8 +157,11 @@ CREATE TABLE dbo.LeaveApprovers (
     CONSTRAINT FK_LeaveApprovers_Approver FOREIGN KEY (ApproverId) REFERENCES dbo.Employees(EmployeeId),
     CONSTRAINT UQ_LeaveApprover_Request_Level UNIQUE (LeaveRequestId, ApprovalLevel)
 );
+GO
 
--- Leave Approval History Table
+-- =============================================
+-- LEAVE APPROVAL HISTORY TABLE
+-- =============================================
 CREATE TABLE dbo.LeaveApprovalHistory (
     HistoryId INT PRIMARY KEY IDENTITY(1,1),
     LeaveRequestId INT NOT NULL,
@@ -154,15 +172,33 @@ CREATE TABLE dbo.LeaveApprovalHistory (
     CONSTRAINT FK_LeaveHistory_Request FOREIGN KEY (LeaveRequestId) REFERENCES dbo.LeaveRequests(LeaveRequestId),
     CONSTRAINT FK_LeaveHistory_Approver FOREIGN KEY (ApproverId) REFERENCES dbo.Employees(EmployeeId)
 );
+GO
 
--- Create Indexes for better performance
+-- =============================================
+-- CREATE INDEXES FOR PERFORMANCE
+-- =============================================
 CREATE INDEX IX_Employees_Manager ON dbo.Employees(ManagerId);
 CREATE INDEX IX_Employees_Department ON dbo.Employees(DepartmentId);
+CREATE INDEX IX_Employees_Position ON dbo.Employees(PositionId);
 CREATE INDEX IX_Employees_Email ON dbo.Employees(Email);
+CREATE INDEX IX_Positions_Department ON dbo.Positions(DepartmentId);
 CREATE INDEX IX_LeaveRequests_Employee ON dbo.LeaveRequests(EmployeeId);
 CREATE INDEX IX_LeaveRequests_Status ON dbo.LeaveRequests(Status);
 CREATE INDEX IX_LeaveRequests_Date ON dbo.LeaveRequests(StartDate, EndDate);
 CREATE INDEX IX_LeaveBalances_Employee_Year ON dbo.LeaveBalances(EmployeeId, Year);
 CREATE INDEX IX_LeaveApprovers_Approver ON dbo.LeaveApprovers(ApproverId, Status);
+GO
 
-PRINT 'Database tables created successfully';
+PRINT '========================================';
+PRINT 'Database schema created successfully';
+PRINT 'Total tables created: 8';
+PRINT '- Departments (with Positions relationship)';
+PRINT '- Positions (belongs to Department)';
+PRINT '- Employees';
+PRINT '- LeaveTypes';
+PRINT '- LeaveBalances';
+PRINT '- LeaveRequests';
+PRINT '- LeaveApprovers';
+PRINT '- LeaveApprovalHistory';
+PRINT '========================================';
+GO
