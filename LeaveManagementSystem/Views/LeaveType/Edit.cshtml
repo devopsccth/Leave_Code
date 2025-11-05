@@ -1,0 +1,139 @@
+@model LeaveType
+@{
+    ViewData["Title"] = "แก้ไขประเภทการลา";
+}
+
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h4><i class="bi bi-pencil"></i> แก้ไขประเภทการลา</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="LeaveTypeId" />
+                    <input type="hidden" asp-for="CreatedDate" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-warning"><i class="bi bi-tag"></i> ข้อมูลพื้นฐาน</h5>
+                            <hr>
+
+                            <div class="mb-3">
+                                <label asp-for="LeaveTypeCode" class="form-label">รหัสประเภท *</label>
+                                <input asp-for="LeaveTypeCode" class="form-control" readonly />
+                                <small class="form-text text-muted">ไม่สามารถแก้ไขรหัสได้</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="LeaveTypeName" class="form-label">ชื่อประเภท *</label>
+                                <input asp-for="LeaveTypeName" class="form-control" />
+                                <span asp-validation-for="LeaveTypeName" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Description" class="form-label">คำอธิบาย</label>
+                                <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                                <span asp-validation-for="Description" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="DefaultDays" class="form-label">จำนวนวันมาตรฐาน *</label>
+                                <input asp-for="DefaultDays" type="number" step="0.5" class="form-control" />
+                                <span asp-validation-for="DefaultDays" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="MaxConsecutiveDays" class="form-label">จำนวนวันต่อเนื่องสูงสุด</label>
+                                <input asp-for="MaxConsecutiveDays" type="number" class="form-control" />
+                                <span asp-validation-for="MaxConsecutiveDays" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 class="text-warning"><i class="bi bi-gear"></i> การตั้งค่า</h5>
+                            <hr>
+
+                            <div class="mb-3 form-check">
+                                <input asp-for="IsProRated" class="form-check-input" />
+                                <label asp-for="IsProRated" class="form-check-label">คำนวณแบบ Pro-rate</label>
+                                <small class="form-text text-muted d-block">
+                                    คำนวณวันลาตามอายุงาน
+                                </small>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input asp-for="IsPaidLeave" class="form-check-input" />
+                                <label asp-for="IsPaidLeave" class="form-check-label">ลาได้รับค่าจ้าง</label>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input asp-for="RequiresDocumentation" class="form-check-input" />
+                                <label asp-for="RequiresDocumentation" class="form-check-label">ต้องแนบเอกสาร</label>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input asp-for="RequiresGender" class="form-check-input" id="requiresGender" />
+                                <label asp-for="RequiresGender" class="form-check-label">จำกัดเพศ</label>
+                            </div>
+
+                            <div class="mb-3" id="genderSelectDiv" style="display: none;">
+                                <label asp-for="ApplicableGender" class="form-label">เพศที่ใช้ได้</label>
+                                <select asp-for="ApplicableGender" class="form-select">
+                                    <option value="">-- ไม่จำกัด --</option>
+                                    <option value="Male">ชายเท่านั้น</option>
+                                    <option value="Female">หญิงเท่านั้น</option>
+                                </select>
+                                <span asp-validation-for="ApplicableGender" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input asp-for="IsActive" class="form-check-input" />
+                                <label asp-for="IsActive" class="form-check-label">เปิดใช้งาน</label>
+                            </div>
+
+                            <div class="alert alert-warning mt-3">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>คำเตือน:</strong> การแก้ไขจะมีผลกับพนักงานทั้งหมด
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> ย้อนกลับ
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> บันทึกการแก้ไข
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(document).ready(function() {
+            // Show/hide gender selection based on RequiresGender checkbox
+            $('#requiresGender').change(function() {
+                if ($(this).is(':checked')) {
+                    $('#genderSelectDiv').slideDown();
+                } else {
+                    $('#genderSelectDiv').slideUp();
+                    $('#ApplicableGender').val('');
+                }
+            });
+
+            // Initial state
+            if ($('#requiresGender').is(':checked')) {
+                $('#genderSelectDiv').show();
+            }
+        });
+    </script>
+}

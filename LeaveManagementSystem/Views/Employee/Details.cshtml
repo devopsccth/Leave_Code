@@ -1,0 +1,176 @@
+@model Employee
+@{
+    ViewData["Title"] = "รายละเอียดพนักงาน";
+}
+
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4><i class="bi bi-person-circle"></i> รายละเอียดพนักงาน</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5 class="text-info"><i class="bi bi-person-badge"></i> ข้อมูลส่วนตัว</h5>
+                        <hr>
+
+                        <dl class="row">
+                            <dt class="col-sm-4">รหัสพนักงาน:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-primary">@Model.EmployeeCode</span>
+                            </dd>
+
+                            <dt class="col-sm-4">ชื่อ-นามสกุล:</dt>
+                            <dd class="col-sm-8">@Model.FullName</dd>
+
+                            <dt class="col-sm-4">อีเมล:</dt>
+                            <dd class="col-sm-8">
+                                <a href="mailto:@Model.Email">@Model.Email</a>
+                            </dd>
+
+                            <dt class="col-sm-4">เพศ:</dt>
+                            <dd class="col-sm-8">
+                                @switch (Model.Gender)
+                                {
+                                    case "Male":
+                                        <span>ชาย</span>
+                                        break;
+                                    case "Female":
+                                        <span>หญิง</span>
+                                        break;
+                                    default:
+                                        <span>@Model.Gender</span>
+                                        break;
+                                }
+                            </dd>
+
+                            @if (Model.DateOfBirth.HasValue)
+                            {
+                                <dt class="col-sm-4">วันเกิด:</dt>
+                                <dd class="col-sm-8">
+                                    @Model.DateOfBirth.Value.ToString("dd/MM/yyyy")
+                                    <small class="text-muted">
+                                        (อายุ @((DateTime.Now.Year - Model.DateOfBirth.Value.Year)) ปี)
+                                    </small>
+                                </dd>
+                            }
+
+                            <dt class="col-sm-4">วันที่เริ่มงาน:</dt>
+                            <dd class="col-sm-8">
+                                @Model.HireDate.ToString("dd/MM/yyyy")
+                                <small class="text-muted">
+                                    (อายุงาน @((DateTime.Now.Year - Model.HireDate.Year)) ปี)
+                                </small>
+                            </dd>
+                        </dl>
+                    </div>
+
+                    <div class="col-md-6">
+                        <h5 class="text-info"><i class="bi bi-building"></i> ข้อมูลองค์กร</h5>
+                        <hr>
+
+                        <dl class="row">
+                            <dt class="col-sm-4">แผนก:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-info">@Model.DepartmentName</span>
+                            </dd>
+
+                            <dt class="col-sm-4">ตำแหน่ง:</dt>
+                            <dd class="col-sm-8">
+                                <span class="badge bg-secondary">@Model.PositionName</span>
+                            </dd>
+
+                            <dt class="col-sm-4">ผู้จัดการ:</dt>
+                            <dd class="col-sm-8">
+                                @if (!string.IsNullOrEmpty(Model.ManagerName))
+                                {
+                                    @Model.ManagerName
+                                }
+                                else
+                                {
+                                    <span class="text-muted">ไม่มี</span>
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">บทบาท:</dt>
+                            <dd class="col-sm-8">
+                                @switch (Model.Role)
+                                {
+                                    case "Admin":
+                                        <span class="badge bg-danger">ผู้ดูแลระบบ</span>
+                                        break;
+                                    case "HR":
+                                        <span class="badge bg-primary">ฝ่ายทรัพยากรบุคคล</span>
+                                        break;
+                                    case "Manager":
+                                        <span class="badge bg-warning text-dark">ผู้จัดการ</span>
+                                        break;
+                                    default:
+                                        <span class="badge bg-success">พนักงานทั่วไป</span>
+                                        break;
+                                }
+                            </dd>
+
+                            <dt class="col-sm-4">สถานะ:</dt>
+                            <dd class="col-sm-8">
+                                @if (Model.IsActive)
+                                {
+                                    <span class="badge bg-success">กำลังทำงาน</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">ไม่ได้ใช้งาน</span>
+                                }
+                            </dd>
+                        </dl>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <h5 class="text-info"><i class="bi bi-clock-history"></i> ข้อมูลระบบ</h5>
+                        <hr>
+
+                        <dl class="row">
+                            <dt class="col-sm-3">สร้างเมื่อ:</dt>
+                            <dd class="col-sm-9">@Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                            @if (Model.UpdatedDate.HasValue)
+                            {
+                                <dt class="col-sm-3">แก้ไขล่าสุด:</dt>
+                                <dd class="col-sm-9">@Model.UpdatedDate.Value.ToString("dd/MM/yyyy HH:mm")</dd>
+                            }
+
+                            @if (Model.LastLoginDate.HasValue)
+                            {
+                                <dt class="col-sm-3">เข้าระบบล่าสุด:</dt>
+                                <dd class="col-sm-9">
+                                    @Model.LastLoginDate.Value.ToString("dd/MM/yyyy HH:mm")
+                                    <small class="text-muted">
+                                        (@((DateTime.Now - Model.LastLoginDate.Value).Days) วันที่แล้ว)
+                                    </small>
+                                </dd>
+                            }
+                        </dl>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> ย้อนกลับ
+                    </a>
+                    <div>
+                        <a asp-action="Edit" asp-route-id="@Model.EmployeeId" class="btn btn-warning">
+                            <i class="bi bi-pencil"></i> แก้ไข
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

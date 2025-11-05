@@ -1,0 +1,86 @@
+@model IEnumerable<LeaveRequest>
+@{
+    ViewData["Title"] = "อนุมัติคำขอลา";
+}
+
+<div class="card">
+    <div class="card-header bg-warning">
+        <h4><i class="bi bi-check-circle"></i> คำขอลารออนุมัติ</h4>
+    </div>
+    <div class="card-body">
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>เลขที่คำขอ</th>
+                            <th>พนักงาน</th>
+                            <th>แผนก</th>
+                            <th>ประเภทการลา</th>
+                            <th>วันที่ลา</th>
+                            <th>จำนวนวัน</th>
+                            <th>รอมา (วัน)</th>
+                            <th>สถานะ</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="badge bg-info">@item.RequestNumber</span>
+                                </td>
+                                <td>
+                                    <strong>@item.EmployeeName</strong><br>
+                                    <small class="text-muted">@item.EmployeeCode</small>
+                                </td>
+                                <td>@item.DepartmentName</td>
+                                <td>
+                                    <span class="badge bg-secondary">@item.LeaveTypeName</span>
+                                </td>
+                                <td>
+                                    @item.StartDate.ToString("dd/MM/yyyy")<br>
+                                    <small class="text-muted">ถึง @item.EndDate.ToString("dd/MM/yyyy")</small>
+                                </td>
+                                <td class="text-center">
+                                    <strong>@item.TotalDays</strong> วัน
+                                </td>
+                                <td class="text-center">
+                                    @if (item.DaysPending.HasValue)
+                                    {
+                                        if (item.DaysPending.Value > 3)
+                                        {
+                                            <span class="badge bg-danger">@item.DaysPending.Value</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-warning text-dark">@item.DaysPending.Value</span>
+                                        }
+                                    }
+                                </td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">รอพิจารณา</span>
+                                </td>
+                                <td>
+                                    <a asp-action="Details" asp-route-id="@item.LeaveRequestId" class="btn btn-sm btn-primary">
+                                        <i class="bi bi-eye"></i> ดูรายละเอียด
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info text-center">
+                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">ไม่มีคำขอลารอ อนุมัติ</h5>
+                <p>ไม่มีคำขอลาที่รอการพิจารณาจากคุณในขณะนี้</p>
+            </div>
+        }
+    </div>
+</div>

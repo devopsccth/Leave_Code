@@ -1,0 +1,80 @@
+@model Department
+@{
+    ViewData["Title"] = "เพิ่มแผนก";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4><i class="bi bi-plus-circle"></i> เพิ่มแผนกใหม่</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Create" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="DepartmentCode" class="form-label">รหัสแผนก *</label>
+                        <input asp-for="DepartmentCode" class="form-control" placeholder="เช่น IT, HR, FIN" />
+                        <span asp-validation-for="DepartmentCode" class="text-danger"></span>
+                        <small class="form-text text-muted">รหัสแผนกต้องไม่ซ้ำกัน</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DepartmentName" class="form-label">ชื่อแผนก *</label>
+                        <input asp-for="DepartmentName" class="form-control" placeholder="เช่น ฝ่ายเทคโนโลยีสารสนเทศ" />
+                        <span asp-validation-for="DepartmentName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="IsActive" class="form-check-input" checked />
+                        <label asp-for="IsActive" class="form-check-label">เปิดใช้งาน</label>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> ย้อนกลับ
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> บันทึก
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5><i class="bi bi-info-circle"></i> คำแนะนำ</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>รหัสแผนก:</strong></p>
+                <ul>
+                    <li>ใช้ตัวอักษรภาษาอังกฤษพิมพ์ใหญ่</li>
+                    <li>ควรใช้ชื่อย่อที่เข้าใจง่าย</li>
+                    <li>เช่น IT, HR, FIN, MKT, OPS</li>
+                </ul>
+
+                <p><strong>ชื่อแผนก:</strong></p>
+                <ul>
+                    <li>ใช้ชื่อเต็มของแผนก</li>
+                    <li>สามารถใช้ภาษาไทยหรืออังกฤษ</li>
+                </ul>
+
+                <p><strong>เปิดใช้งาน:</strong></p>
+                <ul>
+                    <li>ถ้าต้องการปิดใช้งาน ให้ยกเลิกเครื่องหมายถูก</li>
+                    <li>แผนกที่ปิดใช้งานจะไม่แสดงในระบบ</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

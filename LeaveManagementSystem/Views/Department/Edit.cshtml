@@ -1,0 +1,114 @@
+@model Department
+@{
+    ViewData["Title"] = "แก้ไขแผนก";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h4><i class="bi bi-pencil"></i> แก้ไขข้อมูลแผนก</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="DepartmentId" />
+                    <input type="hidden" asp-for="CreatedDate" />
+
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="DepartmentCode" class="form-label">รหัสแผนก *</label>
+                        <input asp-for="DepartmentCode" class="form-control" readonly />
+                        <span asp-validation-for="DepartmentCode" class="text-danger"></span>
+                        <small class="form-text text-muted">ไม่สามารถแก้ไขรหัสแผนกได้</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="DepartmentName" class="form-label">ชื่อแผนก *</label>
+                        <input asp-for="DepartmentName" class="form-control" placeholder="เช่น ฝ่ายเทคโนโลยีสารสนเทศ" />
+                        <span asp-validation-for="DepartmentName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input asp-for="IsActive" class="form-check-input" />
+                        <label asp-for="IsActive" class="form-check-label">เปิดใช้งาน</label>
+                        <small class="form-text text-muted d-block">
+                            @if (Model.IsActive)
+                            {
+                                <span class="text-success">✓ กำลังใช้งาน</span>
+                            }
+                            else
+                            {
+                                <span class="text-danger">✗ ปิดใช้งาน</span>
+                            }
+                        </small>
+                    </div>
+
+                    <hr>
+
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>หมายเหตุ:</strong> การแก้ไขชื่อแผนกจะมีผลกับข้อมูลทั้งหมดในระบบ
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> ย้อนกลับ
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> บันทึกการแก้ไข
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-secondary text-white">
+                <h5><i class="bi bi-clock-history"></i> ข้อมูลระบบ</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>วันที่สร้าง:</strong><br>
+                @Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</p>
+
+                @if (Model.UpdatedDate.HasValue)
+                {
+                    <p><strong>แก้ไขล่าสุด:</strong><br>
+                    @Model.UpdatedDate.Value.ToString("dd/MM/yyyy HH:mm")</p>
+                }
+
+                <p><strong>สถานะ:</strong><br>
+                @if (Model.IsActive)
+                {
+                    <span class="badge bg-success">เปิดใช้งาน</span>
+                }
+                else
+                {
+                    <span class="badge bg-secondary">ปิดใช้งาน</span>
+                }
+                </p>
+            </div>
+        </div>
+
+        <div class="card mt-3">
+            <div class="card-header bg-danger text-white">
+                <h5><i class="bi bi-exclamation-triangle"></i> การปิดใช้งาน</h5>
+            </div>
+            <div class="card-body">
+                <p>หากต้องการปิดใช้งานแผนกนี้:</p>
+                <ul>
+                    <li>ยกเลิกเครื่องหมาย "เปิดใช้งาน"</li>
+                    <li>แผนกจะไม่แสดงในตัวเลือก</li>
+                    <li>พนักงานเดิมยังคงอยู่ในแผนก</li>
+                    <li>ไม่สามารถเพิ่มพนักงานใหม่</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,87 @@
+@model IEnumerable<LeaveBalance>
+@{
+    ViewData["Title"] = "รายงานวันลาทั้งหมด";
+}
+
+<div class="card">
+    <div class="card-header bg-success text-white">
+        <h4><i class="bi bi-file-earmark-bar-graph"></i> รายงานวันลาพนักงานทั้งหมด</h4>
+    </div>
+    <div class="card-body">
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-6">
+                <label class="form-label">ปี</label>
+                <select name="year" class="form-select">
+                    @foreach (var y in ViewBag.Years)
+                    {
+                        <option value="@y" selected="@(y == ViewBag.Year)">ปี @(y + 543)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">แผนก</label>
+                <select name="departmentId" class="form-select">
+                    <option value="">-- ทุกแผนก --</option>
+                    @foreach (var dept in ViewBag.Departments as IEnumerable<Department>)
+                    {
+                        <option value="@dept.DepartmentId" selected="@(dept.DepartmentId == ViewBag.DepartmentId)">
+                            @dept.DepartmentName
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-12">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> ค้นหา
+                </button>
+            </div>
+        </form>
+
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover table-sm">
+                    <thead>
+                        <tr>
+                            <th>รหัส</th>
+                            <th>ชื่อ-สกุล</th>
+                            <th>แผนก</th>
+                            <th>ตำแหน่ง</th>
+                            <th>ประเภทการลา</th>
+                            <th class="text-center">สิทธิ์</th>
+                            <th class="text-center">ใช้</th>
+                            <th class="text-center">เหลือ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td><small>@item.EmployeeCode</small></td>
+                                <td>@item.EmployeeName</td>
+                                <td>@item.DepartmentName</td>
+                                <td>@item.PositionName</td>
+                                <td><span class="badge bg-secondary">@item.LeaveTypeName</span></td>
+                                <td class="text-center">@item.EntitledDays</td>
+                                <td class="text-center">@item.UsedDays</td>
+                                <td class="text-center">
+                                    <strong class="@(item.RemainingDays < 1 ? "text-danger" : "")">
+                                        @item.RemainingDays
+                                    </strong>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info text-center">
+                <i class="bi bi-inbox" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">ไม่มีข้อมูล</h5>
+                <p>ไม่พบข้อมูลตามเงื่อนไขที่เลือก</p>
+            </div>
+        }
+    </div>
+</div>

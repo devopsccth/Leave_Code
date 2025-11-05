@@ -1,0 +1,144 @@
+@model LeaveRequest
+@{
+    ViewData["Title"] = "รายละเอียดคำขอลา";
+}
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4><i class="bi bi-file-earmark-text"></i> รายละเอียดคำขอลา</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">เลขที่คำขอ:</dt>
+                    <dd class="col-sm-8"><span class="badge bg-info fs-6">@Model.RequestNumber</span></dd>
+
+                    <dt class="col-sm-4">ประเภทการลา:</dt>
+                    <dd class="col-sm-8"><span class="badge bg-secondary fs-6">@Model.LeaveTypeName</span></dd>
+
+                    <dt class="col-sm-4">วันที่ลา:</dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.StartDate.ToString("dd/MM/yyyy")</strong> ถึง <strong>@Model.EndDate.ToString("dd/MM/yyyy")</strong>
+                    </dd>
+
+                    <dt class="col-sm-4">จำนวนวัน:</dt>
+                    <dd class="col-sm-8"><strong class="text-primary fs-5">@Model.TotalDays วัน</strong></dd>
+
+                    <dt class="col-sm-4">เหตุผล:</dt>
+                    <dd class="col-sm-8">@(Model.Reason ?? "-")</dd>
+
+                    <dt class="col-sm-4">วันที่ขอ:</dt>
+                    <dd class="col-sm-8">@Model.RequestDate.ToString("dd/MM/yyyy HH:mm")</dd>
+
+                    <dt class="col-sm-4">สถานะ:</dt>
+                    <dd class="col-sm-8">
+                        @switch (Model.Status)
+                        {
+                            case "Approved":
+                                <span class="badge bg-success fs-6">อนุมัติแล้ว</span>
+                                break;
+                            case "Rejected":
+                                <span class="badge bg-danger fs-6">ปฏิเสธแล้ว</span>
+                                break;
+                            case "Cancelled":
+                                <span class="badge bg-secondary fs-6">ยกเลิกแล้ว</span>
+                                break;
+                            default:
+                                <span class="badge bg-warning text-dark fs-6">รอพิจารณา</span>
+                                break;
+                        }
+                    </dd>
+                </dl>
+
+                @if (Model.Approvers != null && Model.Approvers.Any())
+                {
+                    <hr>
+                    <h5><i class="bi bi-people"></i> ผู้อนุมัติ</h5>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>ลำดับ</th>
+                                <th>ชื่อ</th>
+                                <th>สถานะ</th>
+                                <th>หมายเหตุ</th>
+                                <th>วันที่</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var approver in Model.Approvers)
+                            {
+                                <tr>
+                                    <td>@approver.ApprovalLevel</td>
+                                    <td>@approver.ApproverName</td>
+                                    <td>
+                                        @switch (approver.Status)
+                                        {
+                                            case "Approved":
+                                                <span class="badge bg-success">อนุมัติ</span>
+                                                break;
+                                            case "Rejected":
+                                                <span class="badge bg-danger">ปฏิเสธ</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-warning text-dark">รอพิจารณา</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>@(approver.Comments ?? "-")</td>
+                                    <td>@(approver.ActionDate?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+
+                <hr>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> ย้อนกลับ
+                    </a>
+                    @if (Model.Status == "Pending" || Model.Status == "Approved")
+                    {
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#cancelModal">
+                            <i class="bi bi-x-circle"></i> ยกเลิกคำขอ
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Modal -->
+@if (Model.Status == "Pending" || Model.Status == "Approved")
+{
+    <div class="modal fade" id="cancelModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">ยกเลิกคำขอลา</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form asp-action="Cancel" method="post">
+                    <div class="modal-body">
+                        <input type="hidden" name="LeaveRequestId" value="@Model.LeaveRequestId" />
+                        <div class="mb-3">
+                            <label class="form-label">เหตุผลการยกเลิก *</label>
+                            <textarea name="CancellationReason" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <div class="alert alert-warning">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            คุณแน่ใจหรือไม่ที่จะยกเลิกคำขอลานี้?
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                        <button type="submit" class="btn btn-danger">ยืนยันการยกเลิก</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}

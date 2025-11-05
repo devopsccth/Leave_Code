@@ -1,0 +1,157 @@
+@model EmployeeViewModel
+@{
+    ViewData["Title"] = "แก้ไขพนักงาน";
+}
+
+<div class="row">
+    <div class="col-md-10 mx-auto">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h4><i class="bi bi-pencil"></i> แก้ไขข้อมูลพนักงาน</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="EmployeeId" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="text-warning"><i class="bi bi-person-badge"></i> ข้อมูลพื้นฐาน</h5>
+                            <hr>
+
+                            <div class="mb-3">
+                                <label asp-for="EmployeeCode" class="form-label">รหัสพนักงาน *</label>
+                                <input asp-for="EmployeeCode" class="form-control" readonly />
+                                <small class="form-text text-muted">ไม่สามารถแก้ไขรหัสพนักงานได้</small>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label">อีเมล *</label>
+                                <input asp-for="Email" type="email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="FirstName" class="form-label">ชื่อ *</label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="LastName" class="form-label">นามสกุล *</label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Gender" class="form-label">เพศ *</label>
+                                <select asp-for="Gender" class="form-select">
+                                    <option value="">-- เลือกเพศ --</option>
+                                    <option value="Male">ชาย</option>
+                                    <option value="Female">หญิง</option>
+                                    <option value="Other">อื่นๆ</option>
+                                </select>
+                                <span asp-validation-for="Gender" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="DateOfBirth" class="form-label">วันเกิด</label>
+                                <input asp-for="DateOfBirth" type="date" class="form-control" />
+                                <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="HireDate" class="form-label">วันที่เริ่มงาน *</label>
+                                <input asp-for="HireDate" type="date" class="form-control" />
+                                <span asp-validation-for="HireDate" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 class="text-warning"><i class="bi bi-building"></i> ข้อมูลองค์กร</h5>
+                            <hr>
+
+                            <div class="mb-3">
+                                <label asp-for="DepartmentId" class="form-label">แผนก *</label>
+                                <select asp-for="DepartmentId" class="form-select">
+                                    <option value="">-- เลือกแผนก --</option>
+                                    @foreach (var dept in ViewBag.Departments as IEnumerable<Department>)
+                                    {
+                                        <option value="@dept.DepartmentId">@dept.DepartmentName</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="PositionId" class="form-label">ตำแหน่ง *</label>
+                                <select asp-for="PositionId" class="form-select">
+                                    <option value="">-- เลือกตำแหน่ง --</option>
+                                    @foreach (var pos in ViewBag.Positions as IEnumerable<Position>)
+                                    {
+                                        <option value="@pos.PositionId">
+                                            @pos.PositionName (@pos.DepartmentName)
+                                        </option>
+                                    }
+                                </select>
+                                <span asp-validation-for="PositionId" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="ManagerId" class="form-label">ผู้จัดการ</label>
+                                <select asp-for="ManagerId" class="form-select">
+                                    <option value="">-- ไม่มีผู้จัดการ --</option>
+                                    @foreach (var mgr in ViewBag.Managers as IEnumerable<Employee>)
+                                    {
+                                        <option value="@mgr.EmployeeId">
+                                            @mgr.FullName (@mgr.DepartmentName)
+                                        </option>
+                                    }
+                                </select>
+                                <span asp-validation-for="ManagerId" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Role" class="form-label">บทบาท *</label>
+                                <select asp-for="Role" class="form-select">
+                                    <option value="">-- เลือกบทบาท --</option>
+                                    <option value="Employee">พนักงานทั่วไป (Employee)</option>
+                                    <option value="Manager">ผู้จัดการ (Manager)</option>
+                                    <option value="HR">ฝ่ายทรัพยากรบุคคล (HR)</option>
+                                    <option value="Admin">ผู้ดูแลระบบ (Admin)</option>
+                                </select>
+                                <span asp-validation-for="Role" class="text-danger"></span>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input asp-for="IsActive" class="form-check-input" />
+                                <label asp-for="IsActive" class="form-check-label">เปิดใช้งาน</label>
+                            </div>
+
+                            <div class="alert alert-warning mt-3">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>คำเตือน:</strong> การเปลี่ยนแปลงข้อมูลจะมีผลทันที<br>
+                                <small>การเปลี่ยนรหัสผ่าน ให้ใช้ฟังก์ชันเปลี่ยนรหัสผ่านแยกต่างหาก</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between">
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> ย้อนกลับ
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save"></i> บันทึกการแก้ไข
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

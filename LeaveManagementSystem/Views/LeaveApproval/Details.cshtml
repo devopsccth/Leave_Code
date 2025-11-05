@@ -1,0 +1,164 @@
+@model LeaveRequest
+@{
+    ViewData["Title"] = "รายละเอียดคำขอลา";
+}
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4><i class="bi bi-file-earmark-text"></i> รายละเอียดคำขอลา</h4>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-4">เลขที่คำขอ:</dt>
+                    <dd class="col-sm-8"><span class="badge bg-info">@Model.RequestNumber</span></dd>
+
+                    <dt class="col-sm-4">พนักงาน:</dt>
+                    <dd class="col-sm-8">
+                        <strong>@Model.EmployeeName</strong> (@Model.EmployeeCode)<br>
+                        <small class="text-muted">@Model.DepartmentName - @Model.PositionName</small>
+                    </dd>
+
+                    <dt class="col-sm-4">ประเภทการลา:</dt>
+                    <dd class="col-sm-8"><span class="badge bg-secondary">@Model.LeaveTypeName</span></dd>
+
+                    <dt class="col-sm-4">วันที่ลา:</dt>
+                    <dd class="col-sm-8">
+                        @Model.StartDate.ToString("dd/MM/yyyy") - @Model.EndDate.ToString("dd/MM/yyyy")
+                    </dd>
+
+                    <dt class="col-sm-4">จำนวนวัน:</dt>
+                    <dd class="col-sm-8"><strong class="text-primary">@Model.TotalDays วัน</strong></dd>
+
+                    <dt class="col-sm-4">เหตุผล:</dt>
+                    <dd class="col-sm-8">@(Model.Reason ?? "-")</dd>
+
+                    <dt class="col-sm-4">วันที่ขอ:</dt>
+                    <dd class="col-sm-8">@Model.RequestDate.ToString("dd/MM/yyyy HH:mm")</dd>
+                </dl>
+
+                <hr>
+
+                <h5><i class="bi bi-people"></i> ผู้อนุมัติ</h5>
+                @if (Model.Approvers != null && Model.Approvers.Any())
+                {
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>ลำดับ</th>
+                                <th>ชื่อ</th>
+                                <th>สถานะ</th>
+                                <th>หมายเหตุ</th>
+                                <th>วันที่</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var approver in Model.Approvers)
+                            {
+                                <tr>
+                                    <td>@approver.ApprovalLevel</td>
+                                    <td>@approver.ApproverName</td>
+                                    <td>
+                                        @switch (approver.Status)
+                                        {
+                                            case "Approved":
+                                                <span class="badge bg-success">อนุมัติ</span>
+                                                break;
+                                            case "Rejected":
+                                                <span class="badge bg-danger">ปฏิเสธ</span>
+                                                break;
+                                            default:
+                                                <span class="badge bg-warning text-dark">รอพิจารณา</span>
+                                                break;
+                                        }
+                                    </td>
+                                    <td>@(approver.Comments ?? "-")</td>
+                                    <td>@(approver.ActionDate?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        @if (Model.Status == "Pending")
+        {
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="bi bi-check-circle"></i> อนุมัติ</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="LeaveApproval" asp-action="Approve" method="post">
+                        <input type="hidden" name="LeaveRequestId" value="@Model.LeaveRequestId" />
+                        <input type="hidden" name="ApproverId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
+
+                        <div class="mb-3">
+                            <label class="form-label">หมายเหตุ</label>
+                            <textarea name="Comments" class="form-control" rows="3" placeholder="หมายเหตุเพิ่มเติม (ถ้ามี)"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-check-lg"></i> อนุมัติคำขอนี้
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="bi bi-x-circle"></i> ปฏิเสธ</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="LeaveApproval" asp-action="Reject" method="post">
+                        <input type="hidden" name="LeaveRequestId" value="@Model.LeaveRequestId" />
+                        <input type="hidden" name="ApproverId" value="@User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value" />
+
+                        <div class="mb-3">
+                            <label class="form-label">เหตุผลการปฏิเสธ *</label>
+                            <textarea name="Comments" class="form-control" rows="3" required placeholder="โปรดระบุเหตุผล"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-danger w-100">
+                            <i class="bi bi-x-lg"></i> ปฏิเสธคำขอนี้
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5><i class="bi bi-info-circle"></i> สถานะ</h5>
+                </div>
+                <div class="card-body text-center">
+                    @switch (Model.Status)
+                    {
+                        case "Approved":
+                            <i class="bi bi-check-circle text-success" style="font-size: 3rem;"></i>
+                            <h5 class="mt-2 text-success">อนุมัติแล้ว</h5>
+                            break;
+                        case "Rejected":
+                            <i class="bi bi-x-circle text-danger" style="font-size: 3rem;"></i>
+                            <h5 class="mt-2 text-danger">ปฏิเสธแล้ว</h5>
+                            break;
+                        case "Cancelled":
+                            <i class="bi bi-slash-circle text-secondary" style="font-size: 3rem;"></i>
+                            <h5 class="mt-2 text-secondary">ยกเลิกแล้ว</h5>
+                            break;
+                    }
+                </div>
+            </div>
+        }
+
+        <div class="mt-3">
+            <a asp-action="Index" class="btn btn-secondary w-100">
+                <i class="bi bi-arrow-left"></i> ย้อนกลับ
+            </a>
+        </div>
+    </div>
+</div>
