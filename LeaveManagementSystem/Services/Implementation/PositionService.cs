@@ -15,6 +15,7 @@ namespace LeaveManagementSystem.Services.Implementation
 
         public Task<IEnumerable<Position>> GetAllPositionsAsync() => _positionRepository.GetAllPositionsAsync();
         public Task<Position?> GetPositionByIdAsync(int positionId) => _positionRepository.GetPositionByIdAsync(positionId);
+        public Task<IEnumerable<Position>> GetPositionsByDepartmentAsync(int departmentId) => _positionRepository.GetPositionsByDepartmentAsync(departmentId);
         public Task<int> CreatePositionAsync(Position position) => _positionRepository.CreatePositionAsync(position);
         public Task<int> UpdatePositionAsync(Position position) => _positionRepository.UpdatePositionAsync(position);
         public Task<int> DeletePositionAsync(int positionId) => _positionRepository.DeletePositionAsync(positionId);

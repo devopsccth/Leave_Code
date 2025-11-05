@@ -131,15 +131,18 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        PositionId,
-        PositionCode,
-        PositionName,
-        IsActive,
-        CreatedDate,
-        UpdatedDate,
+        p.PositionId,
+        p.PositionCode,
+        p.PositionName,
+        p.DepartmentId,
+        d.DepartmentName,
+        p.IsActive,
+        p.CreatedDate,
+        p.UpdatedDate,
         (SELECT COUNT(*) FROM dbo.Employees WHERE PositionId = p.PositionId AND IsActive = 1) AS EmployeeCount
     FROM dbo.Positions p
-    ORDER BY PositionName;
+    INNER JOIN dbo.Departments d ON p.DepartmentId = d.DepartmentId
+    ORDER BY d.DepartmentName, p.PositionName;
 END
 GO
 
@@ -154,14 +157,17 @@ BEGIN
     SET NOCOUNT ON;
 
     SELECT
-        PositionId,
-        PositionCode,
-        PositionName,
-        IsActive,
-        CreatedDate,
-        UpdatedDate
-    FROM dbo.Positions
-    WHERE PositionId = @PositionId;
+        p.PositionId,
+        p.PositionCode,
+        p.PositionName,
+        p.DepartmentId,
+        d.DepartmentName,
+        p.IsActive,
+        p.CreatedDate,
+        p.UpdatedDate
+    FROM dbo.Positions p
+    INNER JOIN dbo.Departments d ON p.DepartmentId = d.DepartmentId
+    WHERE p.PositionId = @PositionId;
 END
 GO
 
@@ -171,13 +177,14 @@ GO
 
 CREATE PROCEDURE dbo.SP_CreatePosition
     @PositionCode NVARCHAR(50),
-    @PositionName NVARCHAR(200)
+    @PositionName NVARCHAR(200),
+    @DepartmentId INT
 AS
 BEGIN
     SET NOCOUNT ON;
 
-    INSERT INTO dbo.Positions (PositionCode, PositionName)
-    VALUES (@PositionCode, @PositionName);
+    INSERT INTO dbo.Positions (PositionCode, PositionName, DepartmentId)
+    VALUES (@PositionCode, @PositionName, @DepartmentId);
 
     SELECT SCOPE_IDENTITY() AS PositionId;
 END
@@ -191,6 +198,7 @@ CREATE PROCEDURE dbo.SP_UpdatePosition
     @PositionId INT,
     @PositionCode NVARCHAR(50),
     @PositionName NVARCHAR(200),
+    @DepartmentId INT,
     @IsActive BIT
 AS
 BEGIN
@@ -200,6 +208,7 @@ BEGIN
     SET
         PositionCode = @PositionCode,
         PositionName = @PositionName,
+        DepartmentId = @DepartmentId,
         IsActive = @IsActive,
         UpdatedDate = GETDATE()
     WHERE PositionId = @PositionId;
@@ -233,6 +242,34 @@ BEGIN
     END
 
     SELECT @@ROWCOUNT AS RowsAffected;
+END
+GO
+
+-- Get Positions By Department
+IF OBJECT_ID('dbo.SP_GetPositionsByDepartment', 'P') IS NOT NULL DROP PROCEDURE dbo.SP_GetPositionsByDepartment;
+GO
+
+CREATE PROCEDURE dbo.SP_GetPositionsByDepartment
+    @DepartmentId INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        p.PositionId,
+        p.PositionCode,
+        p.PositionName,
+        p.DepartmentId,
+        d.DepartmentName,
+        p.IsActive,
+        p.CreatedDate,
+        p.UpdatedDate,
+        (SELECT COUNT(*) FROM dbo.Employees WHERE PositionId = p.PositionId AND IsActive = 1) AS EmployeeCount
+    FROM dbo.Positions p
+    INNER JOIN dbo.Departments d ON p.DepartmentId = d.DepartmentId
+    WHERE p.DepartmentId = @DepartmentId
+    AND p.IsActive = 1
+    ORDER BY p.PositionName;
 END
 GO
 

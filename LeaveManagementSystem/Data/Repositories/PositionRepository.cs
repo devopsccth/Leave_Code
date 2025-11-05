@@ -37,12 +37,23 @@ namespace LeaveManagementSystem.Data.Repositories
             return result;
         }
 
+        public async Task<IEnumerable<Position>> GetPositionsByDepartmentAsync(int departmentId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            var result = await connection.QueryAsync<Position>(
+                "SP_GetPositionsByDepartment",
+                new { DepartmentId = departmentId },
+                commandType: CommandType.StoredProcedure
+            );
+            return result;
+        }
+
         public async Task<int> CreatePositionAsync(Position position)
         {
             using var connection = new SqlConnection(_connectionString);
             var result = await connection.QuerySingleAsync<int>(
                 "SP_CreatePosition",
-                new { position.PositionCode, position.PositionName },
+                new { position.PositionCode, position.PositionName, position.DepartmentId },
                 commandType: CommandType.StoredProcedure
             );
             return result;
@@ -58,6 +69,7 @@ namespace LeaveManagementSystem.Data.Repositories
                     position.PositionId,
                     position.PositionCode,
                     position.PositionName,
+                    position.DepartmentId,
                     position.IsActive
                 },
                 commandType: CommandType.StoredProcedure

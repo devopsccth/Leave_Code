@@ -1,0 +1,66 @@
+@model Position
+@{ ViewData["Title"] = "แก้ไขตำแหน่ง"; }
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h4><i class="bi bi-pencil"></i> แก้ไขตำแหน่ง</h4>
+            </div>
+            <div class="card-body">
+                <form asp-action="Edit" method="post">
+                    <input type="hidden" asp-for="PositionId" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="DepartmentId" class="form-label">แผนก *</label>
+                        <select asp-for="DepartmentId" class="form-select">
+                            <option value="">-- เลือกแผนก --</option>
+                            @foreach (var dept in ViewBag.Departments as IEnumerable<Department>)
+                            {
+                                <option value="@dept.DepartmentId" selected="@(dept.DepartmentId == Model.DepartmentId)">
+                                    @dept.DepartmentName
+                                </option>
+                            }
+                        </select>
+                        <span asp-validation-for="DepartmentId" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PositionCode" class="form-label">รหัสตำแหน่ง *</label>
+                        <input asp-for="PositionCode" class="form-control" />
+                        <span asp-validation-for="PositionCode" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PositionName" class="form-label">ชื่อตำแหน่ง *</label>
+                        <input asp-for="PositionName" class="form-control" />
+                        <span asp-validation-for="PositionName" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input asp-for="IsActive" class="form-check-input" />
+                            <label asp-for="IsActive" class="form-check-label">
+                                ใช้งาน
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-save"></i> บันทึกการแก้ไข
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="bi bi-x-circle"></i> ยกเลิก
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

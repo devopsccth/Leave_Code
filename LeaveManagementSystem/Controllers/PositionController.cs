@@ -9,10 +9,12 @@ namespace LeaveManagementSystem.Controllers
     public class PositionController : Controller
     {
         private readonly IPositionService _positionService;
+        private readonly IDepartmentService _departmentService;
 
-        public PositionController(IPositionService positionService)
+        public PositionController(IPositionService positionService, IDepartmentService departmentService)
         {
             _positionService = positionService;
+            _departmentService = departmentService;
         }
 
         // GET: Position
@@ -23,8 +25,9 @@ namespace LeaveManagementSystem.Controllers
         }
 
         // GET: Position/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            await LoadDepartmentsAsync();
             return View();
         }
 
@@ -35,6 +38,7 @@ namespace LeaveManagementSystem.Controllers
         {
             if (!ModelState.IsValid)
             {
+                await LoadDepartmentsAsync();
                 return View(model);
             }
 
@@ -47,6 +51,7 @@ namespace LeaveManagementSystem.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"เกิดข้อผิดพลาด: {ex.Message}");
+                await LoadDepartmentsAsync();
                 return View(model);
             }
         }
@@ -59,6 +64,7 @@ namespace LeaveManagementSystem.Controllers
             {
                 return NotFound();
             }
+            await LoadDepartmentsAsync();
             return View(position);
         }
 
@@ -74,6 +80,7 @@ namespace LeaveManagementSystem.Controllers
 
             if (!ModelState.IsValid)
             {
+                await LoadDepartmentsAsync();
                 return View(model);
             }
 
@@ -86,6 +93,7 @@ namespace LeaveManagementSystem.Controllers
             catch (Exception ex)
             {
                 ModelState.AddModelError("", $"เกิดข้อผิดพลาด: {ex.Message}");
+                await LoadDepartmentsAsync();
                 return View(model);
             }
         }
@@ -105,6 +113,13 @@ namespace LeaveManagementSystem.Controllers
                 TempData["Error"] = $"เกิดข้อผิดพลาด: {ex.Message}";
             }
             return RedirectToAction(nameof(Index));
+        }
+
+        // Helper method to load departments
+        private async Task LoadDepartmentsAsync()
+        {
+            var departments = await _departmentService.GetAllDepartmentsAsync();
+            ViewBag.Departments = departments;
         }
     }
 }

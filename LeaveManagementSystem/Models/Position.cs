@@ -5,9 +5,13 @@ namespace LeaveManagementSystem.Models
         public int PositionId { get; set; }
         public string PositionCode { get; set; } = string.Empty;
         public string PositionName { get; set; } = string.Empty;
+        public int DepartmentId { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime? UpdatedDate { get; set; }
+
+        // Navigation properties
+        public string? DepartmentName { get; set; }
 
         // For display purposes
         public int EmployeeCount { get; set; }
