@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using LeaveManagementSystem.Models.ViewModels;
 using LeaveManagementSystem.Services.Interfaces;
 
 namespace LeaveManagementSystem.Controllers
@@ -35,25 +36,47 @@ namespace LeaveManagementSystem.Controllers
         [Authorize(Policy = "HROnly")]
         public async Task<IActionResult> AllEmployeesLeave(int? year, int? departmentId)
         {
-            year ??= DateTime.Now.Year;
+            try
+            {
+                year ??= DateTime.Now.Year;
 
-            var report = await _reportService.GetAllEmployeesLeaveReportPivotAsync(year, departmentId);
-            var departments = await _departmentService.GetAllDepartmentsAsync();
+                var report = await _reportService.GetAllEmployeesLeaveReportPivotAsync(year, departmentId);
+                var departments = await _departmentService.GetAllDepartmentsAsync();
 
-            // Get all unique leave type codes for table headers
-            var leaveTypeCodes = report
-                .SelectMany(r => r.LeaveBalances.Keys)
-                .Distinct()
-                .OrderBy(k => k)
-                .ToList();
+                // Get all unique leave type codes for table headers
+                var leaveTypeCodes = new List<string>();
+                if (report != null && report.Any())
+                {
+                    leaveTypeCodes = report
+                        .SelectMany(r => r.LeaveBalances?.Keys ?? new List<string>())
+                        .Where(k => !string.IsNullOrEmpty(k))
+                        .Distinct()
+                        .OrderBy(k => k)
+                        .ToList();
+                }
 
-            ViewBag.Year = year;
-            ViewBag.DepartmentId = departmentId;
-            ViewBag.Years = Enumerable.Range(DateTime.Now.Year - 5, 6).Reverse();
-            ViewBag.Departments = departments;
-            ViewBag.LeaveTypeCodes = leaveTypeCodes;
+                ViewBag.Year = year;
+                ViewBag.DepartmentId = departmentId;
+                ViewBag.Years = Enumerable.Range(DateTime.Now.Year - 5, 6).Reverse();
+                ViewBag.Departments = departments;
+                ViewBag.LeaveTypeCodes = leaveTypeCodes;
 
-            return View(report);
+                return View(report);
+            }
+            catch (Exception ex)
+            {
+                // Log error and show friendly message
+                TempData["Error"] = $"เกิดข้อผิดพลาดในการโหลดรายงาน: {ex.Message}";
+
+                // Set ViewBag values for the view to render properly
+                ViewBag.Year = year ?? DateTime.Now.Year;
+                ViewBag.DepartmentId = departmentId;
+                ViewBag.Years = Enumerable.Range(DateTime.Now.Year - 5, 6).Reverse();
+                ViewBag.Departments = await _departmentService.GetAllDepartmentsAsync();
+                ViewBag.LeaveTypeCodes = new List<string>();
+
+                return View(new List<EmployeeLeaveBalancePivotViewModel>());
+            }
         }
     }
 }
