@@ -1,0 +1,143 @@
+@model IEnumerable<LeaveBalance>
+@{
+    ViewData["Title"] = "ยอดวันลาคงเหลือ";
+    var currentYear = DateTime.Now.Year;
+}
+
+<div class="card">
+    <div class="card-header bg-info text-white">
+        <h4><i class="bi bi-calendar-check"></i> ยอดวันลาคงเหลือของฉัน</h4>
+        <small>ปี @(currentYear + 543)</small>
+    </div>
+    <div class="card-body">
+        @if (Model != null && Model.Any())
+        {
+            <div class="row">
+                @foreach (var balance in Model)
+                {
+                    var usagePercent = balance.EntitledDays > 0 ? (balance.UsedDays / balance.EntitledDays * 100) : 0;
+                    var remainingPercent = balance.EntitledDays > 0 ? (balance.RemainingDays / balance.EntitledDays * 100) : 0;
+
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h5 class="card-title mb-0">
+                                        <span class="badge bg-primary">@balance.LeaveTypeName</span>
+                                    </h5>
+                                    @if (balance.LeaveTypeCode != null)
+                                    {
+                                        <small class="text-muted">@balance.LeaveTypeCode</small>
+                                    }
+                                </div>
+
+                                <div class="row text-center mb-3">
+                                    <div class="col-4">
+                                        <div class="p-2 bg-light rounded">
+                                            <small class="text-muted d-block">สิทธิ์ทั้งหมด</small>
+                                            <strong class="fs-4 text-primary">@balance.EntitledDays</strong>
+                                            <small class="text-muted d-block">วัน</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="p-2 bg-light rounded">
+                                            <small class="text-muted d-block">ใช้ไปแล้ว</small>
+                                            <strong class="fs-4 text-warning">@balance.UsedDays</strong>
+                                            <small class="text-muted d-block">วัน</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="p-2 bg-light rounded">
+                                            <small class="text-muted d-block">คงเหลือ</small>
+                                            <strong class="fs-4 @(balance.RemainingDays < 1 ? "text-danger" : "text-success")">
+                                                @balance.RemainingDays
+                                            </strong>
+                                            <small class="text-muted d-block">วัน</small>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <small class="text-muted">การใช้งาน</small>
+                                        <small class="text-muted">@usagePercent.ToString("F1")%</small>
+                                    </div>
+                                    <div class="progress" style="height: 25px;">
+                                        <div class="progress-bar bg-warning" role="progressbar"
+                                             style="width: @usagePercent.ToString("F1")%"
+                                             aria-valuenow="@balance.UsedDays"
+                                             aria-valuemin="0"
+                                             aria-valuemax="@balance.EntitledDays">
+                                            @balance.UsedDays วัน
+                                        </div>
+                                        <div class="progress-bar @(balance.RemainingDays < 1 ? "bg-danger" : "bg-success")"
+                                             role="progressbar"
+                                             style="width: @remainingPercent.ToString("F1")%"
+                                             aria-valuenow="@balance.RemainingDays"
+                                             aria-valuemin="0"
+                                             aria-valuemax="@balance.EntitledDays">
+                                            @balance.RemainingDays วัน
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (balance.CarryForwardDays > 0)
+                                {
+                                    <div class="alert alert-info mb-2 py-2">
+                                        <small>
+                                            <i class="bi bi-info-circle"></i>
+                                            มียอดยกมา: <strong>@balance.CarryForwardDays</strong> วัน
+                                        </small>
+                                    </div>
+                                }
+
+                                @if (balance.YearsOfService != null)
+                                {
+                                    <small class="text-muted">
+                                        <i class="bi bi-clock-history"></i>
+                                        อายุงาน: @balance.YearsOfService ปี
+                                    </small>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="alert alert-light mt-3">
+                <h6><i class="bi bi-info-circle-fill text-info"></i> หมายเหตุ</h6>
+                <ul class="mb-0 small">
+                    <li>ยอดวันลาคำนวณตามปีปฏิทิน (1 มกราคม - 31 ธันวาคม)</li>
+                    <li>วันลาที่ใช้ไปรวมเฉพาะคำขอที่ได้รับอนุมัติแล้ว</li>
+                    <li>วันลาบางประเภทอาจมีการยกยอดไปปีถัดไป (ตามระเบียบบริษัท)</li>
+                </ul>
+            </div>
+
+            <div class="text-center mt-3">
+                <a asp-controller="LeaveRequest" asp-action="Create" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> ขอลาใหม่
+                </a>
+                <a asp-controller="LeaveRequest" asp-action="Index" class="btn btn-outline-secondary">
+                    <i class="bi bi-list-ul"></i> ดูประวัติการลา
+                </a>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-warning text-center">
+                <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
+                <h5 class="mt-3">ไม่มีข้อมูลยอดวันลา</h5>
+                <p>ระบบยังไม่มีข้อมูลวันลาของคุณในปีนี้ กรุณาติดต่อฝ่าย HR</p>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Auto refresh card animations
+        $(document).ready(function() {
+            $('.card').addClass('animate__animated animate__fadeIn');
+        });
+    </script>
+}
